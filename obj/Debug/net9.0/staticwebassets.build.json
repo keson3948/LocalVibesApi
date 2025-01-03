@@ -1,0 +1,12 @@
+{
+  "Version": 1,
+  "Hash": "P3d8XvHjGezmiPDyyoTCMXzx7CCTV/7FswreQGqLhmI=",
+  "Source": "CafesRestaurantsAPI",
+  "BasePath": "_content/CafesRestaurantsAPI",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": [],
+  "Endpoints": []
+}
