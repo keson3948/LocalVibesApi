@@ -117,6 +117,23 @@ public class MongoDbService
         return result;
     }
     
+    public async Task<List<Place>> GetAllPlacesWithCategoriesAsync()
+    {
+        var places = await _placesCollection.Find(_ => true).ToListAsync();
+        foreach (var place in places)
+        {
+            if (!string.IsNullOrEmpty(place.CategoryId))
+            {
+                var category = await GetCategoryByIdAsync(place.CategoryId);
+                if (category != null)
+                {
+                    place.Category = category;
+                }
+            }
+        }
+        return places;
+    }
+    
     public async Task<Category?> GetCategoryByIdAsync(string id) =>
         await _categoriesCollection.Find(c => c.Id == id).FirstOrDefaultAsync();
     
