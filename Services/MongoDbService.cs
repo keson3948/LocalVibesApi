@@ -116,7 +116,9 @@ public class MongoDbService
         var result = await _placesCollection.Aggregate<Place>(pipeline).ToListAsync();
         return result;
     }
-
+    
+    public async Task<Category?> GetCategoryByIdAsync(string id) =>
+        await _categoriesCollection.Find(c => c.Id == id).FirstOrDefaultAsync();
     
     // CRUD methods for Reviews
     public async Task<List<Review>> GetReviewsByPlaceIdAsync(string placeId) =>

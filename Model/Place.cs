@@ -24,4 +24,7 @@ public class Place
 
     [BsonIgnore]
     public double AverageRating { get; set; }
+    
+    [BsonIgnore]
+    public Category? Category { get; set; }
 }

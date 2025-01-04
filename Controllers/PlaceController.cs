@@ -32,6 +32,16 @@ public class PlaceController : ControllerBase
         {
             return NotFound();
         }
+
+        if (!string.IsNullOrEmpty(place.CategoryId))
+        {
+            var category = await _mongoDbService.GetCategoryByIdAsync(place.CategoryId);
+            if (category != null)
+            {
+                place.Category = category;
+            }
+        }
+
         return Ok(place);
     }
 
