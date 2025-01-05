@@ -100,6 +100,12 @@ public class MongoDbService
     
     public async Task CreateManyReviewsAsync(List<Review> newReviews) =>
         await _reviewsCollection.InsertManyAsync(newReviews);
+    
+    public async Task<Review?> GetReviewByIdAsync(string id) =>
+        await _reviewsCollection.Find(r => r.Id == id).FirstOrDefaultAsync();
+
+    public async Task UpdateReviewAsync(string id, Review updatedReview) =>
+        await _reviewsCollection.ReplaceOneAsync(r => r.Id == id, updatedReview);
 
     // CRUD methods for Categories
     public async Task<List<Category>> GetAllCategoriesAsync() =>

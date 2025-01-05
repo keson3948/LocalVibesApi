@@ -31,24 +31,22 @@ public class ReviewController : ControllerBase
         return Ok(reviews);
     }
     
-    // PUT: api/Places/{id}
+    // PUT: api/Review/{id}
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdatePlace(string id, [FromBody] Place updatedPlace)
+    public async Task<IActionResult> UpdateReview(string id, [FromBody] Review updatedReview)
     {
-        // Nejprve ověř, zda místo s daným ID existuje
-        var existingPlace = await _mongoDbService.GetPlaceByIdAsync(id);
-        if (existingPlace == null)
+        var existingReview = await _mongoDbService.GetReviewByIdAsync(id);
+        if (existingReview == null)
         {
-            return NotFound(); // Pokud místo neexistuje, vrátí 404 Not Found
+            return NotFound();
         }
 
-        // Aktualizuj místo
-        updatedPlace.Id = id; // Nastav ID, aby odpovídalo aktualizovanému záznamu
-        await _mongoDbService.UpdatePlaceAsync(id, updatedPlace);
-
-        return NoContent(); // Vrací 204 No Content po úspěšné aktualizaci
+        updatedReview.Id = id;
+        updatedReview.CreatedAt = existingReview.CreatedAt; // Preserve the original CreatedAt value
+        await _mongoDbService.UpdateReviewAsync(id, updatedReview);
+        return NoContent();
     }
-
+    
     // POST: api/Reviews
     [HttpPost]
     public async Task<IActionResult> AddReview([FromBody] Review newReview)
