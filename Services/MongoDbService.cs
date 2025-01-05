@@ -58,64 +58,8 @@ public class MongoDbService
         return await _placesCollection.Find(filter).ToListAsync();
     }
     
-    public async Task<List<Place>> GetPlacesPaginatedAsync(int pageNumber, int pageSize)
-    {
-        if (pageNumber < 1 || pageSize < 1)
-        {
-            throw new ArgumentException("Page number and page size must be greater than 0.");
-        }
-
-        int skip = (pageNumber - 1) * pageSize;
-
-        return await _placesCollection
-            .Find(_ => true)
-            .Skip(skip)
-            .Limit(pageSize)
-            .ToListAsync();
-    }
-    
     public async Task CreateManyPlacesAsync(List<Place> newPlaces) =>
         await _placesCollection.InsertManyAsync(newPlaces);
-
-    public async Task<List<Place>> GetPlacesPaginatedAndSortedByRatingAsync(int pageNumber, int pageSize)
-    {
-        if (pageNumber < 1 || pageSize < 1)
-        {
-            throw new ArgumentException("Page number and page size must be greater than 0.");
-        }
-
-        int skip = (pageNumber - 1) * pageSize;
-
-        var pipeline = new[]
-        {
-            new BsonDocument("$lookup", new BsonDocument
-            {
-                { "from", "Reviews" },
-                { "localField", "_id" },
-                { "foreignField", "PlaceId" },
-                { "as", "Reviews" }
-            }),
-            new BsonDocument("$addFields", new BsonDocument
-            {
-                { "AverageRating", new BsonDocument("$avg", "$Reviews.Rating") }
-            }),
-            new BsonDocument("$sort", new BsonDocument("AverageRating", -1)),
-            new BsonDocument("$skip", skip),
-            new BsonDocument("$limit", pageSize),
-            new BsonDocument("$project", new BsonDocument
-            {
-                { "name", 1 },
-                { "address", 1 },
-                { "opening_hours", 1 },
-                { "category_id", 1 },
-                { "image_url", 1 },
-                { "AverageRating", 1 }
-            })
-        };
-
-        var result = await _placesCollection.Aggregate<Place>(pipeline).ToListAsync();
-        return result;
-    }
     
     public async Task<List<Place>> GetAllPlacesWithCategoriesAsync()
     {
@@ -138,8 +82,13 @@ public class MongoDbService
         await _categoriesCollection.Find(c => c.Id == id).FirstOrDefaultAsync();
     
     // CRUD methods for Reviews
+    public async Task<List<Review>> GetAllReviewsAsync() =>
+        await _reviewsCollection.Find(_ => true).ToListAsync();
+    
     public async Task<List<Review>> GetReviewsByPlaceIdAsync(string placeId) =>
-        await _reviewsCollection.Find(r => r.PlaceId == placeId).ToListAsync();
+        await _reviewsCollection.Find(r => r.PlaceId == placeId)
+            .SortByDescending(r => r.CreatedAt)
+            .ToListAsync();
 
     public async Task AddReviewAsync(Review review) =>
         await _reviewsCollection.InsertOneAsync(review);

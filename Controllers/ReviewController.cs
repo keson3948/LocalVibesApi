@@ -15,6 +15,14 @@ public class ReviewController : ControllerBase
         _mongoDbService = mongoDbService;
     }
     
+    // GET: api/Reviews
+    [HttpGet]
+    public async Task<IActionResult> GetAllReviews()
+    {
+        var reviews = await _mongoDbService.GetAllReviewsAsync();
+        return Ok(reviews);
+    }
+    
     // GET: api/Reviews/place/{placeId}
     [HttpGet("place/{placeId}")]
     public async Task<IActionResult> GetReviewsByPlaceId(string placeId)

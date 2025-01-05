@@ -120,29 +120,5 @@ public class PlaceController : ControllerBase
         return Ok(places);
     }
 
-    [HttpGet("paginated")]
-    public async Task<IActionResult> GetPlacesPaginated([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
-    {
-        if (pageNumber < 1 || pageSize < 1)
-        {
-            return BadRequest("Page number and page size must be greater than 0.");
-        }
-
-        var places = await _mongoDbService.GetPlacesPaginatedAsync(pageNumber, pageSize);
-        return Ok(places);
-    }
-
-    [HttpGet("paginatedSorted")]
-    public async Task<IActionResult> GetPlacesPaginatedAndSortedByRating([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
-    {
-        if (pageNumber < 1 || pageSize < 1)
-        {
-            return BadRequest("Page number and page size must be greater than 0.");
-        }
-
-        var places = await _mongoDbService.GetPlacesPaginatedAndSortedByRatingAsync(pageNumber, pageSize);
-        return Ok(places);
-    }
-
 
 }
