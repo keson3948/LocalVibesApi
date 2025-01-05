@@ -53,6 +53,7 @@ public class ReviewController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> AddReview([FromBody] Review newReview)
     {
+        newReview.CreatedAt = DateTime.Now; 
         await _mongoDbService.AddReviewAsync(newReview);
         return CreatedAtAction(nameof(GetReviewsByPlaceId), new { placeId = newReview.PlaceId }, newReview);
     }

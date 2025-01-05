@@ -20,5 +20,5 @@ public class Review
     public int Rating { get; set; }
     
     [BsonDateTimeOptions(Kind = DateTimeKind.Local)]
-    public DateTime CreatedAt { get; set; } = DateTime.Now;
+    public DateTime? CreatedAt { get; set; } = DateTime.Now;
 }
