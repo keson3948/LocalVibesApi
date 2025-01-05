@@ -22,9 +22,6 @@ public class Place
     public string? ImageUrl { get; set; }
     
     [BsonIgnore]
-    public List<Review> Reviews { get; set; }
-
-    [BsonIgnore]
     public double AverageRating { get; set; }
     
     [BsonIgnore]

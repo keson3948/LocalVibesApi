@@ -17,8 +17,6 @@ public class PlaceController : ControllerBase
     
     // GET: api/Places
     [HttpGet]
-// GET: api/Places
-    [HttpGet]
     public async Task<IActionResult> GetAllPlaces()
     {
         var places = await _mongoDbService.GetAllPlacesWithCategoriesAsync();

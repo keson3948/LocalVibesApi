@@ -20,10 +20,8 @@ public class MongoDbService
         _reviewsCollection = database.GetCollection<Review>(settings.Value.ReviewsCollectionName);
         _categoriesCollection = database.GetCollection<Category>(settings.Value.CategoriesCollectionName);
     }
-    
+
     // CRUD methods for Places
-    public async Task<List<Place>> GetAllPlacesAsync() =>
-        await _placesCollection.Find(_ => true).ToListAsync();
 
     public async Task<Place?> GetPlaceByIdAsync(string id) =>
         await _placesCollection.Find(p => p.Id == id).FirstOrDefaultAsync();
@@ -36,7 +34,7 @@ public class MongoDbService
 
     public async Task DeletePlaceAsync(string id) =>
         await _placesCollection.DeleteOneAsync(p => p.Id == id);
-    
+
     public async Task<List<Place>> SearchPlacesByNameAsync(string name)
     {
         var filter = Builders<Place>.Filter.Regex(p => p.Name, new BsonRegularExpression(name, "i"));
@@ -48,7 +46,7 @@ public class MongoDbService
         var filter = Builders<Place>.Filter.Eq(p => p.CategoryId, categoryId);
         return await _placesCollection.Find(filter).ToListAsync();
     }
-    
+
     public async Task<List<Place>> GetPlacesByCategoryAndNameAsync(string categoryId, string name)
     {
         var filter = Builders<Place>.Filter.And(
@@ -57,10 +55,10 @@ public class MongoDbService
         );
         return await _placesCollection.Find(filter).ToListAsync();
     }
-    
+
     public async Task CreateManyPlacesAsync(List<Place> newPlaces) =>
         await _placesCollection.InsertManyAsync(newPlaces);
-    
+
     public async Task<List<Place>> GetAllPlacesWithCategoriesAsync()
     {
         var places = await _placesCollection.Find(_ => true).ToListAsync();
@@ -74,17 +72,28 @@ public class MongoDbService
                     place.Category = category;
                 }
             }
+
+            var reviews = await _reviewsCollection.Find(r => r.PlaceId == place.Id).ToListAsync();
+            if (reviews.Any())
+            {
+                place.AverageRating = reviews.Average(r => r.Rating);
+            }
+            else
+            {
+                place.AverageRating = 0;
+            }
         }
+
         return places;
     }
-    
+
     public async Task<Category?> GetCategoryByIdAsync(string id) =>
         await _categoriesCollection.Find(c => c.Id == id).FirstOrDefaultAsync();
-    
+
     // CRUD methods for Reviews
     public async Task<List<Review>> GetAllReviewsAsync() =>
         await _reviewsCollection.Find(_ => true).ToListAsync();
-    
+
     public async Task<List<Review>> GetReviewsByPlaceIdAsync(string placeId) =>
         await _reviewsCollection.Find(r => r.PlaceId == placeId)
             .SortByDescending(r => r.CreatedAt)
@@ -97,10 +106,10 @@ public class MongoDbService
     {
         return await _reviewsCollection.DeleteOneAsync(r => r.Id == id);
     }
-    
+
     public async Task CreateManyReviewsAsync(List<Review> newReviews) =>
         await _reviewsCollection.InsertManyAsync(newReviews);
-    
+
     public async Task<Review?> GetReviewByIdAsync(string id) =>
         await _reviewsCollection.Find(r => r.Id == id).FirstOrDefaultAsync();
 
@@ -116,7 +125,7 @@ public class MongoDbService
 
     public async Task DeleteCategoryAsync(string id) =>
         await _categoriesCollection.DeleteOneAsync(c => c.Id == id);
-    
+
     public async Task CreateManyCategoriesAsync(List<Category> newCategories) =>
-            await _categoriesCollection.InsertManyAsync(newCategories);
+        await _categoriesCollection.InsertManyAsync(newCategories);
 }
