@@ -38,13 +38,61 @@ public class MongoDbService
     public async Task<List<Place>> SearchPlacesByNameAsync(string name)
     {
         var filter = Builders<Place>.Filter.Regex(p => p.Name, new BsonRegularExpression(name, "i"));
-        return await _placesCollection.Find(filter).ToListAsync();
+        var places = await _placesCollection.Find(filter).ToListAsync();
+
+        foreach (var place in places)
+        {
+            if (!string.IsNullOrEmpty(place.CategoryId))
+            {
+                var category = await GetCategoryByIdAsync(place.CategoryId);
+                if (category != null)
+                {
+                    place.Category = category;
+                }
+            }
+
+            var reviews = await _reviewsCollection.Find(r => r.PlaceId == place.Id).ToListAsync();
+            if (reviews.Any())
+            {
+                place.AverageRating = reviews.Average(r => r.Rating);
+            }
+            else
+            {
+                place.AverageRating = 0;
+            }
+        }
+
+        return places;
     }
 
     public async Task<List<Place>> GetPlacesByCategoryAsync(string categoryId)
     {
         var filter = Builders<Place>.Filter.Eq(p => p.CategoryId, categoryId);
-        return await _placesCollection.Find(filter).ToListAsync();
+        var places = await _placesCollection.Find(filter).ToListAsync();
+
+        foreach (var place in places)
+        {
+            if (!string.IsNullOrEmpty(place.CategoryId))
+            {
+                var category = await GetCategoryByIdAsync(place.CategoryId);
+                if (category != null)
+                {
+                    place.Category = category;
+                }
+            }
+
+            var reviews = await _reviewsCollection.Find(r => r.PlaceId == place.Id).ToListAsync();
+            if (reviews.Any())
+            {
+                place.AverageRating = reviews.Average(r => r.Rating);
+            }
+            else
+            {
+                place.AverageRating = 0;
+            }
+        }
+
+        return places;
     }
 
     public async Task<List<Place>> GetPlacesByCategoryAndNameAsync(string categoryId, string name)
@@ -53,7 +101,31 @@ public class MongoDbService
             Builders<Place>.Filter.Eq(p => p.CategoryId, categoryId),
             Builders<Place>.Filter.Regex(p => p.Name, new BsonRegularExpression(name, "i"))
         );
-        return await _placesCollection.Find(filter).ToListAsync();
+        var places = await _placesCollection.Find(filter).ToListAsync();
+
+        foreach (var place in places)
+        {
+            if (!string.IsNullOrEmpty(place.CategoryId))
+            {
+                var category = await GetCategoryByIdAsync(place.CategoryId);
+                if (category != null)
+                {
+                    place.Category = category;
+                }
+            }
+
+            var reviews = await _reviewsCollection.Find(r => r.PlaceId == place.Id).ToListAsync();
+            if (reviews.Any())
+            {
+                place.AverageRating = reviews.Average(r => r.Rating);
+            }
+            else
+            {
+                place.AverageRating = 0;
+            }
+        }
+
+        return places;
     }
 
     public async Task CreateManyPlacesAsync(List<Place> newPlaces) =>
